@@ -30,10 +30,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: init-maven
-        uses: maven/maven-build-action@v2
-        with:
-          maven-version: current
       - name: build-vault-boot
         run: |
           mvn -Denv.scp=vault -DskipTests --batch-mode --update-snapshots package
