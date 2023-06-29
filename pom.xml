@@ -179,7 +179,7 @@
 		<profile>
 			<id>sm-azure</id>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+<!--				<activeByDefault>true</activeByDefault>-->
 				<property>
 					<name>env.scp</name>
 					<value>azure</value>
