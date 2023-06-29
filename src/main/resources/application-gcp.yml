@@ -1,0 +1,17 @@
+spring:
+  config:
+    import: sm://
+  cloud:
+    gcp:
+      project-id: ${GOOGLE_CLOUD_PROJECT}
+      credentials:
+        location: ${GOOGLE_APPLICATION_CREDENTIALS}
+      secretmanager:
+        enabled: true
+  datasource:
+    username: ${sm://ybdb-username}
+    password: ${sm://ybdb-password}
+ybdb:
+  rootCert: ${sm://ybdb-root-cert}
+  clientKey: ${sm://ybdb-client-key}
+  clientCert: ${sm://ybdb-client-cert}

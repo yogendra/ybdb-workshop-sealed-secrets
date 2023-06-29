@@ -1,0 +1,17 @@
+spring:
+  config:
+    import: vault://
+  cloud:
+    vault:
+      token: #{systemProperties['VAULT_TOKEN']}
+      kv:
+        enabled: true
+      scheme: http
+  datasource:
+    username: ${ybdb-username}
+    password: ${ybdb-password}
+
+ybdb:
+  rootCert: ${ybdb-root-cert}
+  clientKey: ${ybdb-client-key}
+  clientCert: ${ybdb-client-cert}

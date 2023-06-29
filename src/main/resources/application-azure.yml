@@ -1,0 +1,21 @@
+spring:
+  cloud:
+    azure:
+      key-vault:
+        secret:
+          property-sources[0]:
+            name: ${AZURE_KEY_VAULT_NAME}
+            endpoint: ${AZURE_KEY_VAULT_ENDPOINT}
+            secret-keys: # pull only these keys
+              - ybdb-username
+              - ybdb-password
+              - ybdb-rootCA
+              - ybdb-client-key
+              - ybdb-client-cert
+  datasource:
+    username: ${ybdb-username}
+    password: ${ybdb-password}
+ybdb:
+  rootCert: ${ybdb-root-cert}
+  clientKey: ${ybdb-client-key}
+  clientCert: ${ybdb-client-cert}

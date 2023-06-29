@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: ybdb-vault
+  datasource:
+    url: jdbc:yugabytedb://127.0.0.2:5433/yugabyte?ssl=true&sslmode=verify-ca
+    driver-class-name: com.yugabyte.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 5
+      auto-commit: false
+      keepalive-time: 120000
+      connection-init-sql: "select 1"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+server:
+  port: 8080
