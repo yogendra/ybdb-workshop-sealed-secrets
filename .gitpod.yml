@@ -4,11 +4,13 @@ image:
 
 tasks:
   - name: 1a-ybdb-generate-certs
+    env:
+      BASE_DIR: ${!GITPOD_REPO_ROOT}/ybdb
     before: |
-      mkdir -p ${GITPOD_REPO_ROOT}/ybdb/certs
-      sed -i.bak '/args.certs_path/ s/^/# /' /usr/local/yugabyte/bin/yugabyted
+      mkdir -p ${BASE_DIR}/certs
+      sed -i.bak '/args.certs_path/ s/^/# /' ${YB_BIN_PATH}/bin/yugabyted
     init: |
-      yugabyted cert generate_server_certs --hostname ${HOST_LB},${HOST_LB2},${HOST_LB3} –base_dir=${GITPOD_REPO_ROOT}/ybdb/certs
+      yugabyted cert generate_server_certs --hostname ${HOST_LB},${HOST_LB2},${HOST_LB3} –base_dir=${BASE_DIR}/certs
       gp sync-done certs 
 
   - name: 2a-init-vault
@@ -22,24 +24,28 @@ tasks:
     env:
       VAULT_ADDR: http://127.0.0.1:8200
       VAULT_TOKEN: 00000000-0000-0000-0000-000000000000
-      BASE_DIR: ${GITPOD_REPO_ROOT}/ybdb/
+      BASE_DIR: ${!GITPOD_REPO_ROOT}/ybdb/
     command: |
       gp sync-await certs
-      rootca=$(cat ${GITPOD_REPO_ROOT}/ybdb/certs/generated_certs/root-ca/ca.crt | base64)
+      rootca=$(cat ${BASE_DIR}/certs/generated_certs/root-ca/ca.crt | base64)
       vault kv put secret/ybdb-vault ybdb-username=yugabyte ybdb-password=yugabyte ybdb-root-cert=${rootca}
+      gp sync-done vault-ops
 
   - name: 3a-ybdb
+    env:
+      BASE_DIR: ${!GITPOD_REPO_ROOT}/ybdb
     command: |
       gp sync-await certs
-      mkdir -p ${GITPOD_REPO_ROOT}/ybdb
-      yugabyted start --base_dir=${GITPOD_REPO_ROOT}/ybdb/ybd1 --advertise_address=$HOST_LB --tserver_flags=ysql_hba_conf_csv='{hostssl all all all md5}' --secure --certs_dir=${GITPOD_REPO_ROOT}/ybdb/certs/generated_certs/${HOST_LB}/
-      yugabyted start --base_dir=${GITPOD_REPO_ROOT}/ybdb/ybd2 --advertise_address=$HOST_LB2 --join=$HOST_LB --tserver_flags=ysql_hba_conf_csv='{hostssl all all all md5}' --secure --certs_dir=${GITPOD_REPO_ROOT}/ybdb/certs/generated_certs/${HOST_LB2}/
-      yugabyted start --base_dir=${GITPOD_REPO_ROOT}/ybdb/ybd3 --advertise_address=$HOST_LB3 --join=$HOST_LB --tserver_flags=ysql_hba_conf_csv='{hostssl all all all md5}' --secure --certs_dir=${GITPOD_REPO_ROOT}/ybdb/certs/generated_certs/${HOST_LB3}/
+      yugabyted start --base_dir=${BASE_DIR}/ybd1 --advertise_address=$HOST_LB --tserver_flags=ysql_hba_conf_csv='{hostssl all all all md5}' --secure --certs_dir=${BASE_DIR}/certs/generated_certs/${HOST_LB}/
+      yugabyted start --base_dir=${BASE_DIR}/ybd2 --advertise_address=$HOST_LB2 --join=$HOST_LB --tserver_flags=ysql_hba_conf_csv='{hostssl all all all md5}' --secure --certs_dir=${BASE_DIR}/certs/generated_certs/${HOST_LB2}/
+      yugabyted start --base_dir=${BASE_DIR}/ybd3 --advertise_address=$HOST_LB3 --join=$HOST_LB --tserver_flags=ysql_hba_conf_csv='{hostssl all all all md5}' --secure --certs_dir=${BASE_DIR}/certs/generated_certs/${HOST_LB3}/
   - name: 3b-ysqlsh
+    env:
+      BASE_DIR: ${!GITPOD_REPO_ROOT}/ybdb
     command: |
       gp ports await 5433
       sleep 5
-      ysqlsh "sslmode=verify-ca sslrootcert=${GITPOD_REPO_ROOT}/ybdb/certs/generated_certs/root-ca/ca.crt"
+      ysqlsh "sslmode=verify-ca sslrootcert=${BASE_DIR}/certs/generated_certs/root-ca/ca.crt"
 
   - name: 4a-install-jvm
     init: |
@@ -50,7 +56,7 @@ tasks:
       gp sync-await jvm-17
       mvn -Denv.scp=vault -DskipTests clean package
     command: |
-      gp ports await 5433
+      gp ports await 5433 && gp sync-await vault-ops
       java -jar -Dspring.profiles.active=vault ./target/sealedsecret-1.0.jar
 
 # exposed ports
