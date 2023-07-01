@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>io.dsql</groupId>
 	<artifactId>sealedsecret</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0</version>
 	<name>ybdb-sealed-secrets</name>
 	<description>Spring boot integration with secret managers</description>
 	<properties>

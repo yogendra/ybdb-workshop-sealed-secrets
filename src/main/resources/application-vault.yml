@@ -10,7 +10,6 @@ spring:
   datasource:
     username: ${ybdb-username}
     password: ${ybdb-password}
-
 ybdb:
   rootCert: ${ybdb-root-cert}
   clientKey: ${ybdb-client-key}

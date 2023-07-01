@@ -37,8 +37,10 @@ public class SealedSecretApplication {
 		PGSimpleDataSource wrappedDataSource = properties.initializeDataSourceBuilder().type(PGSimpleDataSource.class)
 				.build();
 		wrappedDataSource.setSslRootCert(secretConfig.apply(Type.ROOT_CERT));
-		wrappedDataSource.setSslKey(secretConfig.apply(Type.CLIENT_KEY));
-		wrappedDataSource.setSslCert(secretConfig.apply(Type.CLIENT_CERT));
+		if (secretManagerProperties.isMutualTLS()) {
+			wrappedDataSource.setSslKey(secretConfig.apply(Type.CLIENT_KEY));
+			wrappedDataSource.setSslCert(secretConfig.apply(Type.CLIENT_CERT));
+		}
 		HikariConfig config = config();
 		config.setDataSource(wrappedDataSource);
 		return new HikariDataSource(config);

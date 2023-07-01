@@ -9,7 +9,7 @@ spring:
             secret-keys: # pull only these keys
               - ybdb-username
               - ybdb-password
-              - ybdb-rootCA
+              - ybdb-root-cert
               - ybdb-client-key
               - ybdb-client-cert
   datasource:

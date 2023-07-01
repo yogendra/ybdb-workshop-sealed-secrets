@@ -1,0 +1,89 @@
+image: gitpod/workspace-yugabytedb-preview
+
+tasks:
+  - name: 1a-ybdb-generate-certs
+    env:
+      BASE_DIR: ${GITPOD_REPO_ROOT}/ybdb/
+      HOST_LB: "127.0.0.1"
+      HOST_LB2: "127.0.0.2"
+      HOST_LB3: "127.0.0.3"
+    init: |
+      yugabyted cert generate_server_certs --hostname ${HOST_LB},${HOST_LB2},${HOST_LB3} –base_dir=${BASE_DIR}/certs
+      gp sync-done certs 
+
+  - name: 2a-init-vault
+    init: |
+      wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+      echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+      sudo apt update && sudo apt install vault
+    command: |
+      vault server --dev --dev-root-token-id="00000000-0000-0000-0000-000000000000"
+  - name: 2b-vault-ops
+    env:
+      VAULT_ADDR: http://127.0.0.1:8200
+      VAULT_TOKEN: 00000000-0000-0000-0000-000000000000
+      BASE_DIR: ${GITPOD_REPO_ROOT}/ybdb/
+    command: |
+      gp sync-await certs
+      rootca=$(cat ${BASE_DIR}/certs/generated_certs/root-ca/ca.crt | base64)
+      vault kv put secret/ybdb-vault ybdb-username=yugabyte ybdb-password=yugabyte ybdb-root-cert=${rootca}
+
+  - name: 3a-ybdb
+    env:
+      BASE_DIR: ${GITPOD_REPO_ROOT}/ybdb/
+      HOST_LB: "127.0.0.1"
+      HOST_LB2: "127.0.0.2"
+      HOST_LB3: "127.0.0.3"
+    command: |
+      gp sync-await certs
+      mkdir -p ${GITPOD_REPO_ROOT}/ybdb
+      yugabyted start --base_dir=${BASE_DIR}/ybd1 --advertise_address=$HOST_LB --tserver_flags=ysql_hba_conf_csv='{hostssl all all all md5}' --secure --certs_dir=${BASE_DIR}/certs/generated_certs/${HOST_LB}/
+      yugabyted start --base_dir=${BASE_DIR}/ybd2 --advertise_address=$HOST_LB2 --join=$HOST_LB --tserver_flags=ysql_hba_conf_csv='{hostssl all all all md5}' --secure --certs_dir=${BASE_DIR}/certs/generated_certs/${HOST_LB2}/
+      yugabyted start --base_dir=${BASE_DIR}/ybd3 --advertise_address=$HOST_LB3 --join=$HOST_LB --tserver_flags=ysql_hba_conf_csv='{hostssl all all all md5}' --secure --certs_dir=${BASE_DIR}/certs/generated_certs/${HOST_LB3}/
+  - name: 3b-ysqlsh
+    command: |
+      gp ports await 5433
+      sleep 5
+      ysqlsh "sslmode=verify-ca sslrootcert=${BASE_DIR}/certs/generated_certs/root-ca/ca.crt"
+
+  - name: 4a-install-jvm
+    init: |
+      echo y | sdk install java 17.0.7-librca || true
+      gp sync-done jvm-17
+  - name: 4b-spring-boot
+    init: |
+      gp sync-await jvm-17
+      mvn -Denv.scp=vault -DskipTests clean package
+    command: |
+      gp ports await 5433
+      java -jar -Dspring.profiles.active=vault ./target/sealedsecret-1.0.jar
+
+# exposed ports
+ports:
+  - port: 8080
+    name: spring-boot
+    onOpen: ignore
+  - port: 7000
+    name: yb-master-web
+    onOpen: ignore
+  - port: 9000
+    name: yb-tserver-web
+    onOpen: ignore
+  - port: 7100
+    name: yb-master-rpc
+    onOpen: ignore
+  - port: 9100
+    name: yb-tserver-rpc
+    onOpen: ignore
+  - port: 5433
+    name: ysql
+    onOpen: ignore
+  - port: 13000
+    name: ysql-api
+    onOpen: ignore
+  - port: 9042
+    name: ycql
+    onOpen: ignore
+  - port: 12000
+    name: ycql-api
+    onOpen: ignore

@@ -9,12 +9,14 @@ import java.util.function.Function;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.ToString;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "ybdb")
 @Getter
 @Setter
+@ToString
 public class SecretManagerProperties {
 
 	Function<Type, String> secretConfig = SecretManagerProperties.this::getFilePath;
@@ -42,6 +44,8 @@ public class SecretManagerProperties {
 	private String clientKey;
 
 	private String clientCert;
+
+	private boolean mutualTLS;
 
 	private String getTypeConfig(Type type) {
 		return switch (type) {

@@ -19,3 +19,6 @@ management:
 
 server:
   port: 8080
+
+ybdb:
+  mutualTLS: false
