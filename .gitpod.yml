@@ -13,21 +13,22 @@ tasks:
       yugabyted cert generate_server_certs --hostname ${HOST_LB},${HOST_LB2},${HOST_LB3} --base_dir=${GITPOD_REPO_ROOT}/ybdb/certs
       gp sync-done certs 
 
-  - name: 2a-init-vault
+  - name: 2a-vault-init
     init: |
       wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
       echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
       sudo apt update && sudo apt install vault
     command: |
       vault server --dev --dev-root-token-id="00000000-0000-0000-0000-000000000000"
+      gp sync-done vault-init
   - name: 2b-vault-ops
     env:
       VAULT_ADDR: http://127.0.0.1:8200
       VAULT_TOKEN: 00000000-0000-0000-0000-000000000000
     command: |
-      gp sync-await certs
-      rootca=$(cat ${GITPOD_REPO_ROOT}/ybdb/certs/generated_certs/root-ca/ca.crt | base64)
-      vault kv put secret/ybdb-vault ybdb-username=yugabyte ybdb-password=yugabyte ybdb-root-cert=${rootca}
+      gp sync-await certs && gp sync-await vault-init
+      rootca="$(cat ${GITPOD_REPO_ROOT}/ybdb/certs/generated_certs/root-ca/ca.crt | base64)"
+      vault kv put secret/ybdb-vault ybdb-username=yugabyte ybdb-password=yugabyte ybdb-root-cert="${rootca}"
       gp sync-done vault-ops
 
   - name: 3a-ybdb
