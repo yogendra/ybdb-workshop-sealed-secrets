@@ -4,8 +4,6 @@ image:
 
 tasks:
   - name: 1a-ybdb-generate-certs
-    env:
-      YB_BIN_PATH: /usr/local/yugabyte/bin
     before: |
       mkdir -p ${GITPOD_REPO_ROOT}/ybdb/certs
       sed -i.bak '/args.certs_path/ s/^/# /' ${YB_BIN_PATH}/yugabyted
@@ -20,13 +18,12 @@ tasks:
       sudo apt update && sudo apt install vault
     command: |
       vault server --dev --dev-root-token-id="00000000-0000-0000-0000-000000000000"
-      gp sync-done vault-init
   - name: 2b-vault-ops
     env:
       VAULT_ADDR: http://127.0.0.1:8200
       VAULT_TOKEN: 00000000-0000-0000-0000-000000000000
     command: |
-      gp sync-await certs && gp sync-await vault-init
+      gp sync-await certs && gp await-port 8201
       rootca="$(cat ${GITPOD_REPO_ROOT}/ybdb/certs/generated_certs/root-ca/ca.crt | base64)"
       vault kv put secret/ybdb-vault ybdb-username=yugabyte ybdb-password=yugabyte ybdb-root-cert="${rootca}"
       gp sync-done vault-ops
@@ -39,7 +36,7 @@ tasks:
       yugabyted start --base_dir=${GITPOD_REPO_ROOT}/ybdb/ybd3 --advertise_address=$HOST_LB3 --join=$HOST_LB --tserver_flags=ysql_hba_conf_csv='{hostssl all all all md5}' --secure --certs_dir=${GITPOD_REPO_ROOT}/ybdb/certs/generated_certs/${HOST_LB3}/
   - name: 3b-ysqlsh
     command: |
-      gp ports await 5433
+      gp await-port 5433
       sleep 5
       ysqlsh "sslmode=verify-ca sslrootcert=${GITPOD_REPO_ROOT}/ybdb/certs/generated_certs/root-ca/ca.crt"
 
@@ -52,7 +49,7 @@ tasks:
       gp sync-await jvm-17
       mvn -Denv.scp=vault -DskipTests clean package
     command: |
-      gp ports await 5433 && gp sync-await vault-ops
+      gp await-port 5433 && gp sync-await vault-ops
       java -jar -Dspring.profiles.active=vault ./target/sealedsecret-1.0.jar
 
 # exposed ports
@@ -86,4 +83,7 @@ ports:
     onOpen: ignore
   - port: 8200
     name: vault-web
+    onOpen: ignore
+  - port: 8201
+    name: vault-api
     onOpen: ignore

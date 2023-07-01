@@ -3,6 +3,7 @@ FROM gitpod/workspace-full
 ARG YB_VERSION=2.18.1.0
 ARG YB_BUILD=84
 ARG YB_BIN_PATH=/usr/local/yugabyte
+ARG PYTHON_VERSION=3.9
 ARG ROLE=gitpod
 
 USER root
@@ -18,6 +19,13 @@ RUN curl -sSLo ./yugabyte.tar.gz https://downloads.yugabyte.com/releases/${YB_VE
   && chmod +x $YB_BIN_PATH/bin/* \
   && rm ./yugabyte.tar.gz
 
+ENV PATH="$HOME/.pyenv/bin:$HOME/.pyenv/shims:$PATH"
+ENV PYENV_ROOT="$HOME/.pyenv"
+RUN git clone https://github.com/pyenv/pyenv.git ~/.pyenv \
+	&& git -C ~/.pyenv checkout ff93c58babd813066bf2d64d004a5cee33c0f27b \
+	&& pyenv install ${PYTHON_VERSION} \
+	&& pyenv global ${PYTHON_VERSION}
+
 RUN ["/usr/local/yugabyte/bin/post_install.sh"]
 RUN echo "\n# yugabytedb executable path" >> ~/.bashrc
 RUN echo "export PATH=\$PATH:$YB_BIN_PATH/bin/" >> ~/.bashrc
@@ -32,5 +40,6 @@ ENV WEB_PORT=7000
 ENV TSERVER_WEB_PORT=9000
 ENV YCQL_API_PORT=12000
 ENV YSQL_API_PORT=13000
+ENV YB_BIN_PATH=/usr/local/yugabyte
 
 EXPOSE ${YSQL_PORT} ${YCQL_PORT} ${WEB_PORT} ${TSERVER_WEB_PORT} ${YSQL_API_PORT} ${YCQL_API_PORT}
