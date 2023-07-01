@@ -4,6 +4,7 @@ image:
 
 tasks:
   - name: 1a-ybdb-generate-certs
+    before: mkdir -p ${GITPOD_REPO_ROOT}/ybdb/certs
     init: |
       yugabyted cert generate_server_certs --hostname ${HOST_LB},${HOST_LB2},${HOST_LB3} –base_dir=${GITPOD_REPO_ROOT}/ybdb/certs
       gp sync-done certs 
