@@ -10,7 +10,7 @@ tasks:
       mkdir -p ${GITPOD_REPO_ROOT}/ybdb/certs
       sed -i.bak '/args.certs_path/ s/^/# /' ${YB_BIN_PATH}/yugabyted
     init: |
-      yugabyted cert generate_server_certs --hostname ${HOST_LB},${HOST_LB2},${HOST_LB3} –-base_dir=${GITPOD_REPO_ROOT}/ybdb/certs
+      yugabyted cert generate_server_certs --hostname ${HOST_LB},${HOST_LB2},${HOST_LB3} --base_dir=${GITPOD_REPO_ROOT}/ybdb/certs
       gp sync-done certs 
 
   - name: 2a-init-vault
@@ -82,4 +82,7 @@ ports:
     onOpen: ignore
   - port: 12000
     name: ycql-api
+    onOpen: ignore
+  - port: 8200
+    name: vault-web
     onOpen: ignore
