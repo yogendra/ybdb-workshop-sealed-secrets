@@ -1,12 +1,11 @@
-image: gitpod/workspace-yugabytedb-preview
+#image: gitpod/workspace-yugabytedb-preview
+image:
+  file: .gitpod.ybdb
 
 tasks:
   - name: 1a-ybdb-generate-certs
     env:
       BASE_DIR: ${GITPOD_REPO_ROOT}/ybdb/
-      HOST_LB: "127.0.0.1"
-      HOST_LB2: "127.0.0.2"
-      HOST_LB3: "127.0.0.3"
     init: |
       yugabyted cert generate_server_certs --hostname ${HOST_LB},${HOST_LB2},${HOST_LB3} –base_dir=${BASE_DIR}/certs
       gp sync-done certs 
@@ -31,9 +30,6 @@ tasks:
   - name: 3a-ybdb
     env:
       BASE_DIR: ${GITPOD_REPO_ROOT}/ybdb/
-      HOST_LB: "127.0.0.1"
-      HOST_LB2: "127.0.0.2"
-      HOST_LB3: "127.0.0.3"
     command: |
       gp sync-await certs
       mkdir -p ${GITPOD_REPO_ROOT}/ybdb
