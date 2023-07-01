@@ -1,14 +1,14 @@
 FROM gitpod/workspace-full
 
-ARG YB_VERSION=2.18.10.0
+ARG YB_VERSION=2.18.1.0
 ARG $YB_BIN_PATH=/usr/local/yugabyte
 ARG ROLE=gitpod
 
 USER root
-RUN mkdir -p $YB_BIN_PATH \
-  && mkdir -p /var/ybdp
-RUN chown -R $ROLE:$ROLE /var/ybdp \
-  && chown -R $ROLE:$ROLE /usr/local/yugabyte
+RUN sudo mkdir -p $YB_BIN_PATH \
+  && sudo mkdir -p /var/ybdp
+RUN sudo chown -R $ROLE:$ROLE /var/ybdp \
+  && sudo chown -R $ROLE:$ROLE /usr/local/yugabyte
 
 USER $ROLE
 RUN curl -sSLo ./yugabyte.tar.gz https://downloads.yugabyte.com/releases/${YB_VERSION}/yugabyte-${YB_VERSION}-b${YB_BUILD}-linux-x86_64.tar.gz \
