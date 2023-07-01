@@ -5,9 +5,12 @@ image:
 tasks:
   - name: 1a-ybdb-generate-certs
     env:
-      BASE_DIR: $(eval echo "${GITPOD_REPO_ROOT}/ybdb")
+      YB_BIN_PATH: /usr/local/yugabyte/bin
+      HOST_LB: 127.0.0.1
+      HOST_LB2: 127.0.0.2
+      HOST_LB3: 127.0.0.3
     before: |
-      mkdir -p "${BASE_DIR}/certs"
+      mkdir -p "${GITPOD_REPO_ROOT}/ybdb/certs"
       sed -i.bak '/args.certs_path/ s/^/# /' ${YB_BIN_PATH}/yugabyted
     init: |
       yugabyted cert generate_server_certs --hostname ${HOST_LB},${HOST_LB2},${HOST_LB3} --base_dir=${GITPOD_REPO_ROOT}/ybdb/certs
@@ -31,6 +34,10 @@ tasks:
       gp sync-done vault-ops
 
   - name: 3a-ybdb
+    env:
+      HOST_LB: 127.0.0.1
+      HOST_LB2: 127.0.0.2
+      HOST_LB3: 127.0.0.3
     command: |
       gp sync-await certs
       yugabyted start --base_dir=${GITPOD_REPO_ROOT}/ybdb/ybd1 --advertise_address=$HOST_LB --tserver_flags=ysql_hba_conf_csv='{hostssl all all all md5}' --secure --certs_dir=${GITPOD_REPO_ROOT}/ybdb/certs/generated_certs/${HOST_LB}/
