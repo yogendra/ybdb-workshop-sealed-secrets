@@ -29,7 +29,7 @@ tasks:
       VAULT_TOKEN: 00000000-0000-0000-0000-000000000000
     command: |
       gp sync-await certs && gp await-port 8201
-      rootca="$(cat ${GITPOD_REPO_ROOT}/ybdb/certs/generated_certs/root-ca/ca.crt | base64)"
+      rootca="$(cat ${GITPOD_REPO_ROOT}/ybdb/certs/generated_certs/root-ca/ca.crt | base64 -w 0)"
       vault kv put secret/ybdb-vault ybdb-username=yugabyte ybdb-password=yugabyte ybdb-root-cert="${rootca}"
       gp sync-done vault-ops
 
@@ -43,19 +43,13 @@ tasks:
       yugabyted start --base_dir=${GITPOD_REPO_ROOT}/ybdb/ybd1 --advertise_address=$HOST_LB --tserver_flags=ysql_hba_conf_csv='{hostssl all all all md5}' --secure --certs_dir=${GITPOD_REPO_ROOT}/ybdb/certs/generated_certs/${HOST_LB}/
       yugabyted start --base_dir=${GITPOD_REPO_ROOT}/ybdb/ybd2 --advertise_address=$HOST_LB2 --join=$HOST_LB --tserver_flags=ysql_hba_conf_csv='{hostssl all all all md5}' --secure --certs_dir=${GITPOD_REPO_ROOT}/ybdb/certs/generated_certs/${HOST_LB2}/
       yugabyted start --base_dir=${GITPOD_REPO_ROOT}/ybdb/ybd3 --advertise_address=$HOST_LB3 --join=$HOST_LB --tserver_flags=ysql_hba_conf_csv='{hostssl all all all md5}' --secure --certs_dir=${GITPOD_REPO_ROOT}/ybdb/certs/generated_certs/${HOST_LB3}/
-  - name: 3b-ysqlsh
-    command: |
       gp await-port 5433
       sleep 5
       ysqlsh "sslmode=verify-ca sslrootcert=${GITPOD_REPO_ROOT}/ybdb/certs/generated_certs/root-ca/ca.crt"
 
-  - name: 4a-install-jvm
+  - name: 4a-spring-boot
     init: |
       echo y | sdk install java 17.0.7-librca || true
-      gp sync-done jvm-17
-  - name: 4b-spring-boot
-    init: |
-      gp sync-await jvm-17
       mvn -Denv.scp=vault -DskipTests clean package
     command: |
       gp await-port 5433 && gp sync-await vault-ops
