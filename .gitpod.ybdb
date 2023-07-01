@@ -4,14 +4,12 @@ ARG YB_VERSION=2.18.1.0
 ARG $YB_BIN_PATH=/usr/local/yugabyte
 ARG ROLE=gitpod
 
-USER $ROLE
-# create bin and data path
-RUN sudo mkdir -p $YB_BIN_PATH \
-  && sudo mkdir -p /var/ybdp
-# set permission
-RUN sudo chown -R $ROLE:$ROLE /var/ybdp \
-  && sudo chown -R $ROLE:$ROLE /usr/local/yugabyte
+USER root
+RUN mkdir -p $YB_BIN_PATH
 
+RUN chown -R $ROLE:$ROLE /usr/local/yugabyte
+
+USER $ROLE
 RUN curl -sSLo ./yugabyte.tar.gz https://downloads.yugabyte.com/releases/${YB_VERSION}/yugabyte-${YB_VERSION}-b${YB_BUILD}-linux-x86_64.tar.gz \
   && tar -xvf yugabyte.tar.gz -C $YB_BIN_PATH --strip-components=1 \
   && chmod +x $YB_BIN_PATH/bin/* \
@@ -24,7 +22,6 @@ RUN echo "export PATH=\$PATH:$YB_BIN_PATH/bin/" >> ~/.bashrc
 ENV HOST_LB=127.0.0.1
 ENV HOST_LB2=127.0.0.2
 ENV HOST_LB3=127.0.0.3
-ENV STORE=/var/ybdp
 ENV YSQL_PORT=5433
 ENV YCQL_PORT=9042
 ENV WEB_PORT=7000
