@@ -1,7 +1,5 @@
 package io.dsql.sealedsecret;
 
-import java.util.function.Function;
-
 import javax.sql.DataSource;
 
 import com.yugabyte.ds.PGSimpleDataSource;
@@ -33,15 +31,14 @@ public class SealedSecretApplication {
 	@Bean
 	public DataSource yugabteDBDatasource(DataSourceProperties properties,
 			SecretManagerProperties secretManagerProperties) {
-		Function<Type, String> secretConfig = secretManagerProperties.getSecretConfig();
-		PGSimpleDataSource wrappedDataSource = properties.initializeDataSourceBuilder().type(PGSimpleDataSource.class)
-				.build();
+		var secretConfig = secretManagerProperties.getSecretConfig();
+		var wrappedDataSource = properties.initializeDataSourceBuilder().type(PGSimpleDataSource.class).build();
 		wrappedDataSource.setSslRootCert(secretConfig.apply(Type.ROOT_CERT));
 		if (secretManagerProperties.isMutualTLS()) {
 			wrappedDataSource.setSslKey(secretConfig.apply(Type.CLIENT_KEY));
 			wrappedDataSource.setSslCert(secretConfig.apply(Type.CLIENT_CERT));
 		}
-		HikariConfig config = config();
+		var config = config();
 		config.setDataSource(wrappedDataSource);
 		return new HikariDataSource(config);
 	}

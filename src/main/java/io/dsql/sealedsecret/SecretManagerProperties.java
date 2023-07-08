@@ -57,9 +57,9 @@ public class SecretManagerProperties {
 
 	@SneakyThrows
 	private String getFilePath(Type type) {
-		File file = File.createTempFile(type.prefix, type.suffix);
-		file.deleteOnExit();
+		var file = File.createTempFile(type.prefix, type.suffix);
 		Files.write(Paths.get(file.getPath()), Base64.getDecoder().decode(getTypeConfig(type)));
+		Runtime.getRuntime().addShutdownHook(new Thread(file::deleteOnExit));
 		return file.getPath();
 	}
 
