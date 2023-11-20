@@ -44,3 +44,4 @@ out/
 .springformat
 
 !/client/
+ybdb/
