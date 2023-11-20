@@ -7,7 +7,7 @@
 This describes securing your Spring Boot application with YugabyteDB over TLS using all of the well-known native cloud secret management services
 
 ## Getting Started with Gitpod:
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/srinivasa-vasu/ybdb-sealed-secrets)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/ogendra/ybdb-workshop-sealed-secrets)
 
 
 ## AWS Secrets Manager:
