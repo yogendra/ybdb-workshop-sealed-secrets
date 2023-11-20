@@ -181,7 +181,7 @@ Spring Cloud Vault eases integration with the hosted/managed Vault service. The 
 
 Refer to the `<id>sm-vault</id>` section in the Maven build file (pom.xml) for the complete definition. The dependency mentioned above simplifies the vault integration by automatically configuring the relevant beans, avoiding a lot of boilerplate code.
 
-The Spring profile configuration is available in [application-aws.yml](src/main/resources/application-vault.yml).
+The Spring profile configuration is available in [application-vault.yml](src/main/resources/application-vault.yml).
 
 ```
 spring:
