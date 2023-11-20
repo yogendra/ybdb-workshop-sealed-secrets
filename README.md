@@ -1,6 +1,6 @@
 # ybdb-sealed-secrets
 
-[![SpringBoot CI with Maven](https://github.com/yogendra/ybdb-workshop-sealed-secrets/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/yogendra/ybdb-workshop-sealed-secrets/actions/workflows/build.yml)
+[![SpringBoot CI with Maven](actions/workflows/build.yml/badge.svg?branch=main)](actions/workflows/build.yml/badge.svg)
 
 [Spring Boot](https://spring.io/projects/spring-boot) makes it easy to create stand-alone, production-grade Spring based Applications that you can "just run".
 
