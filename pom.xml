@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.8</version>
+		<version>3.2.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>io.dsql</groupId>
@@ -15,12 +15,12 @@
 	<description>Spring boot integration with secret managers</description>
 	<properties>
 		<java.version>17</java.version>
-		<spring-cloud.version>2022.0.3</spring-cloud.version>
-		<spring-cloud-gcp.version>4.3.1</spring-cloud-gcp.version>
-		<spring-cloud-aws.version>3.0.0</spring-cloud-aws.version>
-		<aws-java-sdk.version>2.20.91</aws-java-sdk.version>
-		<spring-cloud-azure.version>5.2.0</spring-cloud-azure.version>
-		<ybdb.driver.version>42.3.5-yb-3</ybdb.driver.version>
+		<spring-cloud.version>2023.0.0</spring-cloud.version>
+		<spring-cloud-gcp.version>5.0.0</spring-cloud-gcp.version>
+		<spring-cloud-aws.version>3.1.0</spring-cloud-aws.version>
+		<aws-java-sdk.version>2.23.2</aws-java-sdk.version>
+		<spring-cloud-azure.version>5.8.0</spring-cloud-azure.version>
+		<ybdb.driver.version>42.3.5-yb-4</ybdb.driver.version>
 	</properties>
 	<dependencies>
 		<dependency>
