@@ -18,7 +18,7 @@
 		<spring-cloud.version>2023.0.0</spring-cloud.version>
 		<spring-cloud-gcp.version>5.0.0</spring-cloud-gcp.version>
 		<spring-cloud-aws.version>3.1.0</spring-cloud-aws.version>
-		<aws-java-sdk.version>2.23.2</aws-java-sdk.version>
+		<aws-java-sdk.version>2.23.3</aws-java-sdk.version>
 		<spring-cloud-azure.version>5.8.0</spring-cloud-azure.version>
 		<ybdb.driver.version>42.3.5-yb-4</ybdb.driver.version>
 	</properties>
