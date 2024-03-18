@@ -9,7 +9,7 @@ spring:
       maximum-pool-size: 5
       auto-commit: false
       keepalive-time: 120000
-      connection-init-sql: "select 1"
+      connection-init-sql: "begin; prepare warmup as SELECT 1; execute warmup; commit;"
 
 management:
   endpoints:
